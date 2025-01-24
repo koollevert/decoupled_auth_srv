@@ -22,9 +22,13 @@ app.use(
     secure: process.env.NODE_ENV !== 'test',
   })
 );
+const corsOptions = {
+  origin: '*', // Replace with the URL of your frontend (e.g., Next.js app)
+  credentials: true,  // Allow cookies to be sent with the request
+};
 
 // Use the cors middleware to accept requests from anywhere
-app.use(cors());
+app.use(cors(corsOptions));
 
 app.use(currentUserRouter);
 app.use(signinRouter);

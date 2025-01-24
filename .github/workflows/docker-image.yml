@@ -1,0 +1,38 @@
+name: Build and Push Docker Image
+
+on:
+  push:
+    branches:
+      - main
+  # [workflow_dispatch]
+
+      
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: build image
+        run: docker build -t joshuamumo/auth:latest .
+      - name: push image to docker hub
+        run: |
+         docker login -u joshuamumo -p ${{ secrets.DOCKER_HUB_TOKEN }} 
+         docker push joshuamumo/auth:latest
+      
+      - name: Use delete deployment
+        uses: actions-hub/kubectl@master
+        env:
+           KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
+        with:
+           args: delete pods -l app=auth
+      
+      - name: rollout deployment
+        uses: actions-hub/kubectl@master
+        env:
+           KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
+        with:
+           args: rollout status deployment/auth-depl
